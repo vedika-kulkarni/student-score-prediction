@@ -2,6 +2,7 @@
 import streamlit as st
 import joblib
 import numpy as np
+import os
 
 # ============================================================
 # PAGE CONFIGURATION
@@ -17,8 +18,28 @@ st.set_page_config(
 # LOAD MODEL AND SCALER
 # ============================================================
 
-model = joblib.load("best_model.pkl")
-scaler = joblib.load("scaler.pkl")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+try:
+    model_path = os.path.join(BASE_DIR, "best_model.pkl")
+    scaler_path = os.path.join(BASE_DIR, "scaler.pkl")
+
+    model = joblib.load(model_path)
+    scaler = joblib.load(scaler_path)
+
+except FileNotFoundError as e:
+    st.error(
+        "Unable to find the model files. "
+        "Make sure best_model.pkl and scaler.pkl "
+        "are inside the student_score_app folder."
+    )
+    st.code(str(e))
+    st.stop()
+
+except Exception as e:
+    st.error(f"Unable to load model files: {e}")
+    st.stop()
+
 
 # ============================================================
 # CUSTOM CSS
@@ -50,9 +71,7 @@ html, body, [class*="css"] {
     padding-bottom: 40px;
 }
 
-/* ============================================================
-   HEADINGS
-============================================================ */
+/* HEADINGS */
 
 h1 {
     color: #514276 !important;
@@ -78,9 +97,7 @@ small {
     color: #6f657a !important;
 }
 
-/* ============================================================
-   TOP DECORATION
-============================================================ */
+/* TOP DECORATION */
 
 .top-text {
     text-align: center;
@@ -89,9 +106,7 @@ small {
     font-weight: 600;
 }
 
-/* ============================================================
-   SLIDER
-============================================================ */
+/* SLIDER */
 
 .stSlider label {
     color: #514276 !important;
@@ -102,14 +117,11 @@ small {
     background-color: #7563a8 !important;
 }
 
-/* ============================================================
-   BUTTON
-============================================================ */
+/* BUTTON */
 
 .stButton button {
     width: 100%;
     height: 55px;
-
     border-radius: 18px;
     border: none;
 
@@ -120,13 +132,11 @@ small {
     );
 
     color: white !important;
-
     font-family: 'Quicksand', sans-serif;
     font-size: 17px;
     font-weight: 700;
 
     box-shadow: 0 7px 18px rgba(100, 80, 130, 0.18);
-
     transition: 0.25s;
 }
 
@@ -135,18 +145,14 @@ small {
     color: white !important;
 }
 
-/* ============================================================
-   INFO BOX
-============================================================ */
+/* INFO BOX */
 
 [data-testid="stAlert"] {
     color: #514276 !important;
     border-radius: 18px;
 }
 
-/* ============================================================
-   METRIC
-============================================================ */
+/* METRIC */
 
 [data-testid="stMetricLabel"] {
     color: #514276 !important;
@@ -158,17 +164,13 @@ small {
     font-weight: 700 !important;
 }
 
-/* ============================================================
-   PROGRESS BAR
-============================================================ */
+/* PROGRESS BAR */
 
 .stProgress > div > div > div > div {
     background-color: #7563a8;
 }
 
-/* ============================================================
-   DIVIDER
-============================================================ */
+/* DIVIDER */
 
 hr {
     border: none;
@@ -176,9 +178,7 @@ hr {
     background: #d9d0e5;
 }
 
-/* ============================================================
-   FOOTER
-============================================================ */
+/* FOOTER */
 
 .footer-text {
     text-align: center;
@@ -232,7 +232,6 @@ with st.container(border=True):
         "and I'll estimate your score ✨"
     )
 
-
 st.write("")
 
 
@@ -263,7 +262,6 @@ st.info(
     f"📖 You selected **{hours:.1f} hours** of study time."
 )
 
-
 st.write("")
 
 
@@ -273,22 +271,13 @@ st.write("")
 
 if st.button("🌷  Predict My Score  ✨"):
 
-    # --------------------------------------------------------
     # Prepare input
-    # --------------------------------------------------------
-
     input_data = np.array([[hours]])
 
-    # --------------------------------------------------------
     # Scale input
-    # --------------------------------------------------------
-
     input_scaled = scaler.transform(input_data)
 
-    # --------------------------------------------------------
     # Prediction
-    # --------------------------------------------------------
-
     prediction = model.predict(input_scaled)
 
     # Convert NumPy result to normal number
@@ -301,7 +290,6 @@ if st.button("🌷  Predict My Score  ✨"):
         0,
         min(100, predicted_score)
     )
-
 
     # ========================================================
     # PERFORMANCE MESSAGE
@@ -332,7 +320,6 @@ if st.button("🌷  Predict My Score  ✨"):
         emoji = "☁️"
         message = "Every journey starts somewhere. Keep trying 🌱"
 
-
     # ========================================================
     # RESULT
     # ========================================================
@@ -342,7 +329,6 @@ if st.button("🌷  Predict My Score  ✨"):
     st.divider()
 
     st.subheader("✨ Your Result")
-
 
     with st.container(border=True):
 
